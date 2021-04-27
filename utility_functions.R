@@ -248,6 +248,7 @@ compute_d_optimality = function(design, order){
 #' @export
 
 coordinate_exchange_d_optimal <- function(design, order, n_points, n_iter = 10) {
+
   d_optimal_design = design
 
   d_value_opt = compute_d_optimality(d_optimal_design, order)
@@ -260,13 +261,12 @@ coordinate_exchange_d_optimal <- function(design, order, n_points, n_iter = 10) 
     iter = iter + 1
 
     for (row in 1:n) {
-
       for (ing in 1:q) {
         # cat("row: ", row, "ing: ", ing, "\n")
         cox_dir = compute_cox_direction(d_optimal_design[row,], ing, n_points)
         for (entry in 1:nrow(cox_dir)) {
           new_design = d_optimal_design
-          entry=1
+          # entry=1
           new_design[row,] = cox_dir[entry,]
           d_value_opt = compute_d_optimality(d_optimal_design, order)
           d_value_new = compute_d_optimality(new_design, order)
@@ -279,10 +279,16 @@ coordinate_exchange_d_optimal <- function(design, order, n_points, n_iter = 10) 
           #   new_design=new_design
           # }
         }
+
+
+        # best_point = find_best_point_in_cox_dir(design, row, ing)
         # cat("d_value_opt: ", d_value_opt, "\n\n")
         # d_optimal_design
         # cat("d_value_new: ", d_value_new, "\nd_value_opt: ", d_value_opt, "\n\n")
       }
+    #  if(m > 0){
+        # find best point for process variable
+     # }
     }
   }
   return(d_optimal_design)
@@ -430,7 +436,6 @@ coordinate_exchange_i_optimal <- function(design, order, n_points, n_iter = 10) 
         cox_dir = compute_cox_direction(i_optimal_design[row,], ing, n_points)
         for (entry in 1:nrow(cox_dir)) {
           new_design = i_optimal_design
-          entry=1
           new_design[row,] = cox_dir[entry,]
           i_value_opt = compute_i_optimality(i_optimal_design, order)
           i_value_new = compute_i_optimality(new_design, order)
