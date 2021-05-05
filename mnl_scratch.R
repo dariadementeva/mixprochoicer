@@ -10,11 +10,14 @@
 #'
 #' @export
 
-create_random_initial_design_discrete = function(n_ingredients, n_alternatives, n_choice_sets, seed) {
-    # alternatives=j # does not work n_choice_sets=s # does not work, so use letter instead
-    if (!is.null(seed))
+create_random_initial_design_discrete = function(n_ingredients, n_alternatives, n_choice_sets, 
+    seed) {
+    # alternatives=j # does not work n_choice_sets=s # does not work, so use letter
+    # instead
+    if (!is.null(seed)) 
         set.seed(seed)
-    my_array = array(rep(NA_real_, n_ingredients * n_alternatives * n_choice_sets), dim = c(n_ingredients, n_alternatives, n_choice_sets))
+    my_array = array(rep(NA_real_, n_ingredients * n_alternatives * n_choice_sets), 
+        dim = c(n_ingredients, n_alternatives, n_choice_sets))
     for (j in 1:n_alternatives) {
         for (k in 1:n_choice_sets) {
             for (m in 1:n_ingredients) {
@@ -28,7 +31,7 @@ create_random_initial_design_discrete = function(n_ingredients, n_alternatives, 
 
 
 MNL_compute_choice_probabilites = function(design, beta, order) {
-    #
+    # 
     q = dim(design)[1]
     J = dim(design)[2]
     S = dim(design)[3]
@@ -95,7 +98,8 @@ MNL_compute_choice_probabilites = function(design, beta, order) {
                   for (k in (i + 1):(q - 1)) {
                     for (l in (k + 1):q) {
                       counter = counter + 1
-                      x_ijs_x_kjs_xljs = design[i, j, s] * design[k, j, s] * design[l, j, s]
+                      x_ijs_x_kjs_xljs = design[i, j, s] * design[k, j, s] * design[l, 
+                        j, s]
                       x_third_order[counter] = x_ijs_x_kjs_xljs
                     }
                   }
@@ -106,8 +110,10 @@ MNL_compute_choice_probabilites = function(design, beta, order) {
             # x_ijs_x_kjs_xljs = design[i,j,s]*design[k,j,s]*design[l,j,s]
 
 
-            # U_js_term2 = sum(x_ijs_x_kjs[(p1+1):p2]*beta_2FI) U_js_term2 = sum(x_second_order*beta_2FI) U_js_term3 =
-            # sum(x_ijs_x_kjs[(p2+1):p3]*beta_3FI) U_js_term3 = sum(x_third_order*beta_3FI) u_js = U_js_term1 + U_js_term2 + U_js_term3
+            # U_js_term2 = sum(x_ijs_x_kjs[(p1+1):p2]*beta_2FI) U_js_term2 =
+            # sum(x_second_order*beta_2FI) U_js_term3 = sum(x_ijs_x_kjs[(p2+1):p3]*beta_3FI)
+            # U_js_term3 = sum(x_third_order*beta_3FI) u_js = U_js_term1 + U_js_term2 +
+            # U_js_term3
             U[j, s] = u_js  # matrix of model expansion
         }
     }
@@ -146,7 +152,8 @@ MNL_compute_model_matrix <- function(design, order) {
         }
     }
 
-    model_array = array(rep(NA_real_, n_parameters * J * S), dim = c(n_parameters, J, S))
+    model_array = array(rep(NA_real_, n_parameters * J * S), dim = c(n_parameters, 
+        J, S))
 
     if (order >= 1) {
 
@@ -168,7 +175,8 @@ MNL_compute_model_matrix <- function(design, order) {
             for (j in (i + 1):(q - 1)) {
                 for (k in (j + 1):q) {
                   counter = counter + 1
-                  model_array[counter, , ] = design[i, , ] * design[j, , ] * design[k, , ]
+                  model_array[counter, , ] = design[i, , ] * design[j, , ] * design[k, 
+                    , ]
                 }
             }
         }
@@ -207,13 +215,15 @@ MNL_compute_information_matrix = function(design, beta, order) {
     information_matrix = matrix(rep(0, n_parameters * n_parameters), ncol = n_parameters)  # generalize this
     for (s in 1:S) {
         p_s = P[, s]
-        I_s = model_array[1:n_parameters, , s] %*% (diag(p_s) - (t(t(p_s)) %*% t(p_s))) %*% t(model_array[1:n_parameters, , s])
+        I_s = model_array[1:n_parameters, , s] %*% (diag(p_s) - (t(t(p_s)) %*% t(p_s))) %*% 
+            t(model_array[1:n_parameters, , s])
         information_matrix = information_matrix + I_s
     }
     return(information_matrix)
 }
 
-# _______________________________________________________________________________ Check with Mario
+# _______________________________________________________________________________
+# Check with Mario
 
 MNL_compute_d_optimality = function(design, beta, order) {
     mnl_information_matrix = MNL_compute_information_matrix(design, beta, order)
@@ -243,12 +253,14 @@ MNL_coordinate_exchange_d_optimal <- function(design, order, beta, n_points, n_i
             for (s in 1:S) {
                 for (ing in 1:q) {
                   # cat('row: ', row, 'ing: ', ing, '\n')
-                  cox_dir = compute_cox_direction(d_optimal_design[, j, s], ing, n_points)
+                  cox_dir = compute_cox_direction(d_optimal_design[, j, s], ing, 
+                    n_points)
                   for (entry in 1:nrow(cox_dir)) {
                     new_design = d_optimal_design
                     # entry = 1
                     new_design[, j, s] = cox_dir[entry, ]
-                    d_value_opt = MNL_compute_d_optimality(d_optimal_design, beta, order)
+                    d_value_opt = MNL_compute_d_optimality(d_optimal_design, beta, 
+                      order)
                     d_value_new = MNL_compute_d_optimality(new_design, beta, order)
 
                     if (d_value_opt <= d_value_new) {
@@ -257,8 +269,8 @@ MNL_coordinate_exchange_d_optimal <- function(design, order, beta, n_points, n_i
                     }
                     # else { new_design=new_design }
                   }
-                  # cat('d_value_opt: ', d_value_opt, '\n\n') d_optimal_design cat('d_value_new: ', d_value_new, '\nd_value_opt: ', d_value_opt,
-                  # '\n\n')
+                  # cat('d_value_opt: ', d_value_opt, '\n\n') d_optimal_design cat('d_value_new:
+                  # ', d_value_new, '\nd_value_opt: ', d_value_opt, '\n\n')
 
                 }
             }
@@ -271,7 +283,8 @@ MNL_create_moment_matrix(3, 3)
 
 MNL_create_moment_matrix = function(q, order) {
 
-    # q=ncol(design) # disregard, make it simplier define the number of parameters for model order \in 1, 2, 3
+    # q=ncol(design) # disregard, make it simplier define the number of parameters
+    # for model order \in 1, 2, 3
 
     if (order == 1) {
         parameters = q - 1
@@ -285,8 +298,8 @@ MNL_create_moment_matrix = function(q, order) {
         }
     }
 
-    # Auxiliary matrix F is of size parameters with q columns; We fill it in with 1 if the parameter is assumed to be in the moment
-    # matrix
+    # Auxiliary matrix F is of size parameters with q columns; We fill it in with 1
+    # if the parameter is assumed to be in the moment matrix
 
     auxiliary_matrix_f = matrix(rep(0, parameters * q), ncol = q)
     counter = 0
@@ -307,8 +320,8 @@ MNL_create_moment_matrix = function(q, order) {
         }
     }
 
-    # Indeces for order 3: \sum_{i}^{q-2}\sum_{j=i+1}^{q-1}\sum_{k=j+1}^{q} i=1, j=i+1, k=j+1 each ith, jth, kth element are filled
-    # in with 1
+    # Indeces for order 3: \sum_{i}^{q-2}\sum_{j=i+1}^{q-1}\sum_{k=j+1}^{q} i=1,
+    # j=i+1, k=j+1 each ith, jth, kth element are filled in with 1
 
     if (order >= 3) {
         for (i in 1:(q - 2)) {
@@ -370,12 +383,14 @@ MNL_coordinate_exchange_i_optimal <- function(design, order, beta, n_points, n_i
             for (s in 1:S) {
                 for (ing in 1:q) {
                   # cat('row: ', row, 'ing: ', ing, '\n')
-                  cox_dir = compute_cox_direction(i_optimal_design[, j, s], ing, n_points)
+                  cox_dir = compute_cox_direction(i_optimal_design[, j, s], ing, 
+                    n_points)
                   for (entry in 1:nrow(cox_dir)) {
                     new_design = i_optimal_design
                     # entry = 1
                     new_design[, j, s] = cox_dir[entry, ]
-                    i_value_opt = MNL_compute_i_optimality(i_optimal_design, beta, order)
+                    i_value_opt = MNL_compute_i_optimality(i_optimal_design, beta, 
+                      order)
                     i_value_new = MNL_compute_i_optimality(new_design, beta, order)
 
                     if (i_value_opt >= i_value_new) {
@@ -384,8 +399,8 @@ MNL_coordinate_exchange_i_optimal <- function(design, order, beta, n_points, n_i
                     }
                     # else { new_design=new_design }
                   }
-                  # cat('d_value_opt: ', d_value_opt, '\n\n') d_optimal_design cat('d_value_new: ', d_value_new, '\nd_value_opt: ', d_value_opt,
-                  # '\n\n')
+                  # cat('d_value_opt: ', d_value_opt, '\n\n') d_optimal_design cat('d_value_new:
+                  # ', d_value_new, '\nd_value_opt: ', d_value_opt, '\n\n')
 
                 }
             }
@@ -395,7 +410,8 @@ MNL_coordinate_exchange_i_optimal <- function(design, order, beta, n_points, n_i
 }
 
 
-MNL_coordinate_exchange_general <- function(design, order, n_points, beta, optimality_criterion, n_iter = 100) {
+MNL_coordinate_exchange_general <- function(design, order, n_points, beta, optimality_criterion, 
+    n_iter = 100) {
     if (optimality_criterion == "D") {
         MNL_coordinate_exchange_d_optimal(design, order, n_points, n_iter = 100)
     } else {
